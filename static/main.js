@@ -36,11 +36,9 @@ function submitQuiz() {
         "rightAnswer": rightAnswer,
         "startDate": startDate,
         "endDate": endDate
-    }
+    };
 
-    ;
-
-    console.log(quizData) $.ajax({
+    $.ajax({
 
         url: '/quizzes',
         type: 'POST',
