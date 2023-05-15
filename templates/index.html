@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Quiz Application</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/main.js"></script>
+
+</head>
+
+<body>
+    <div class="container" id="c1">
+        <header class="header">
+            <h1>Quiz Application</h1>
+        </header>
+        <section class="quizzes-section">
+            <h2>Available Quizzes</h2>
+            <ul class="quiz-list">
+                <li class="quiz-list-item">
+                    <span class="quiz-heading">Quiz ID</span>
+                    <span class="quiz-heading">Status</span>
+                    <span class="quiz-heading">Attend</span>
+                    <span class="quiz-heading">Results</span>
+                </li>
+            </ul>
+        </section>
+
+
+        <div class="container" id="c2">
+            <section class="quiz">
+            </section>
+
+            <section class="create-quiz-section">
+                <h2>Create Quiz <button class="create-quiz-button" id="addButton"><span>+</span></button></h2>
+                <div id="addQuizForm" style="display: none;">
+                    <label for="questionInput">Question:</label>
+                    <input type="text" id="questionInput" name="question" />
+
+                    <label for="option1Input">Option 1:</label>
+                    <input type="text" id="option1Input" name="option1" />
+
+                    <label for="option2Input">Option 2:</label>
+                    <input type="text" id="option2Input" name="option2" />
+
+                    <label for="option3Input">Option 3:</label>
+                    <input type="text" id="option3Input" name="option3" />
+
+                    <label for="rightAnswerInput">Right Answer:</label>
+                    <input type="text" id="rightAnswerInput" name="rightAnswer" />
+
+                    <label for="startDateInput">Start Date:</label>
+                    <input type="datetime-local" id="startDateInput" name="startDate" />
+
+                    <label for="endDateInput">End Date:</label>
+                    <input type="datetime-local" id="endDateInput" name="endDate" />
+
+                    <button id="submitQuizButton" onclick="submitQuiz()">Create Quiz</button>
+                </div>
+                <p id="createQuizMessage" class="success-message" style="display: none;"></p>
+
+            </section>
+
+        </div>
+
+
+    </div>
+
+
+
+</body>
+
+</html>
