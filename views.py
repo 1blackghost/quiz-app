@@ -114,3 +114,24 @@ def getResult(id: str) -> jsonify:
         response = (i[2], i[3])
         array.append(response)
     return jsonify(array)
+
+@app.route("/reveal/<id>", methods=["GET"])
+def reveal(id):
+    """
+    Retrieve the revealed answer for a quiz with the given ID.
+
+    Parameters:
+        id (str): The ID of the quiz.
+
+    Returns:
+        str: The revealed answer of the quiz.
+
+    Raises:
+        SomeException: An exception that may occur.
+    """
+    try:
+        data = question_db.read_quiz(id)
+        revealed_answer = data[5]
+        return revealed_answer
+    except Exception as e:
+        raise SomeException("Failed to retrieve the revealed answer.") from e

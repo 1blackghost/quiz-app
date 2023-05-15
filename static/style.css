@@ -208,3 +208,26 @@ body {
 .results-table tbody tr:hover {
     background-color: #ebebeb;
 }
+
+.reveal-button2 {
+    background-color: #C4C4C4;
+    color: #FFF;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.reveal-button {
+    background-color: orange;
+    color: #FFF;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.results-button2 {
+    background-color: grey;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

@@ -1,5 +1,6 @@
 $(document).ready(function() {
     fetchQuizzes();
+
     $('#addButton').click(function() {
         $('#addQuizForm').slideToggle('slow');
     });
@@ -9,8 +10,13 @@ $(document).ready(function() {
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [array[i],
+            array[j]
+        ] = [array[j],
+            array[i]
+        ];
     }
+
     return array;
 }
 
@@ -30,23 +36,28 @@ function submitQuiz() {
         "rightAnswer": rightAnswer,
         "startDate": startDate,
         "endDate": endDate
-    };
-    console.log(quizData)
-    $.ajax({
+    }
+
+    ;
+
+    console.log(quizData) $.ajax({
+
         url: '/quizzes',
         type: 'POST',
         data: JSON.stringify(quizData),
         contentType: 'application/json',
         success: function(response) {
-            $('#createQuizMessage').text('Quiz created successfully!');
-            $('#createQuizMessage').addClass('success-message');
-            $('#createQuizMessage').show();
-            $('#addQuizForm').slideUp('slow');
+                $('#createQuizMessage').text('Quiz created successfully!');
+                $('#createQuizMessage').addClass('success-message');
+                $('#createQuizMessage').show();
+                $('#addQuizForm').slideUp('slow');
 
-            console.log('Quiz created successfully!');
-            console.log(response);
-            fetchQuizzes();
-        },
+                console.log('Quiz created successfully!');
+                console.log(response);
+                fetchQuizzes();
+            }
+
+            ,
         error: function(error) {
             console.error('Error creating quiz:', error);
         }
@@ -63,6 +74,7 @@ function updateQuizList(quizData) {
     quizHeadings.append('<span class="quiz-heading">Status</span>');
     quizHeadings.append('<span class="quiz-heading">Attend</span>');
     quizHeadings.append('<span class="quiz-heading">Results</span>');
+    quizHeadings.append('<span class="quiz-heading">Correct Answer</span>');
 
     quizList.append(quizHeadings);
 
@@ -79,22 +91,40 @@ function updateQuizList(quizData) {
         if (currentDate < startDate) {
             quizItem.append('<span class="quiz-status finished">Inactive</span>');
             quizItem.append('<button class="attend-quiz-button2" disabled>Attend</button>');
+            quizItem.append('<span class="quiz-info"><button class="results-button2" onclick="getResults(' + quiz[0] + ')" disabled>Results</button></span>');
+
+            quizItem.append('<span class="quiz-info"><button class="reveal-button2" disabled>Reveal Answer</button></span>');
+
         }
+
         // Check if the current time is after the end time
         else if (currentDate > endDate) {
             quizItem.append('<span class="quiz-status finished">Finished</span>');
             quizItem.append('<button class="attend-quiz-button2" disabled>Attend</button>');
+            quizItem.append('<span class="quiz-info"><button class="results-button" onclick="getResults(' + quiz[0] + ')">Results</button></span>');
+
+
+            // Check if 5 minutes have passed since the quiz finish time
+            var finishTimePlus5Minutes = new Date(endDate.getTime() + 5 * 60000);
+
+            if (currentDate > finishTimePlus5Minutes) {
+                quizItem.append('<span class="quiz-info"><button class="reveal-button" onclick="getAnswer(' + quiz[0] + ')">Reveal Answer</button></span>');
+            } else {
+                quizItem.append('<span class="quiz-info"><button class="reveal-button2" disabled>Reveal Answer</button></span>');
+            }
         } else {
             quizItem.append('<span class="quiz-status active">Active</span>');
             quizItem.append('<button class="attend-quiz-button" onclick="attendQuiz(' + quiz[0] + ')">Attend</button>');
+            quizItem.append('<span class="quiz-info"><button class="results-button" onclick="getResults(' + quiz[0] + ')">Results</button></span>');
+            quizItem.append('<span class="quiz-info"><button class="reveal-button2" disabled>Reveal Answer</button></span>');
         }
-        quizItem.append('<span class="quiz-info"><button class="results-button" id="result" onclick="getResults(' + quiz[0] + ')">Results</button></span>');
 
         $('.quiz-list').append(quizItem);
 
         quizList.append(quizItem);
     });
 }
+
 
 function attendQuiz(quizId) {
     $('.quizzes-section').empty();
@@ -112,20 +142,27 @@ function attendQuiz(quizId) {
 
 function submitName(quizId) {
     const data = {
-        name: $("#name").val()
-    };
+        name: $(
+            "#name").val()
+    }
+
+    ;
+
     $.ajax({
         url: '/getname', // Specify the URL to which you want to send the POST request
         type: 'POST', // Specify the HTTP method
         data: data,
         dataType: 'json', // Specify the expected data type of the response
-        success: function(response) {
-            // Handle the success response
-            console.log('POST request successful!');
-            console.log(response);
-            continueWithQuiz(quizId);
 
-        },
+        success: function(response) {
+                // Handle the success response
+                console.log('POST request successful!');
+                console.log(response);
+                continueWithQuiz(quizId);
+
+            }
+
+            ,
         error: function(error) {
             // Handle the error response
             console.error('Error in POST request');
@@ -137,53 +174,57 @@ function submitName(quizId) {
 
 
 function continueWithQuiz(quizId) {
+
     // Make an AJAX request to fetch the quiz details for the given quiz ID
     $.ajax({
+
         url: '/quizzes/' + quizId,
         type: 'GET',
         dataType: 'json',
         success: function(response) {
-            // Clear the HTML content of the quiz section
-            $('.quizzes-section').empty();
+                // Clear the HTML content of the quiz section
+                $('.quizzes-section').empty();
 
-            console.log('Quiz details retrieved successfully!');
-            console.log(response);
+                console.log('Quiz details retrieved successfully!');
+                console.log(response);
 
-            // Extract the quiz details from the response
-            var quizDetails = response;
-            var quizId = quizDetails.uid;
-            var question = quizDetails.question;
-            var options = [quizDetails.option1, quizDetails.option2, quizDetails.option3, quizDetails.rightAnswer];
+                // Extract the quiz details from the response
+                var quizDetails = response;
+                var quizId = quizDetails.uid;
+                var question = quizDetails.question;
+                var options = [quizDetails.option1, quizDetails.option2, quizDetails.option3, quizDetails.rightAnswer];
 
 
-            // Create the quiz container
-            var quizContainer = $('<div class="quiz-container"></div>');
-            // Add the quiz ID
-            var quizIdElement = $('<h3>Quiz ID: ' + quizId + '</h3>');
-            quizContainer.append(quizIdElement);
+                // Create the quiz container
+                var quizContainer = $('<div class="quiz-container"></div>');
+                // Add the quiz ID
+                var quizIdElement = $('<h3>Quiz ID: ' + quizId + '</h3>');
+                quizContainer.append(quizIdElement);
 
-            // Add the question as heading
-            var questionElement = $('<h3>' + question + '</h3>');
-            quizContainer.append(questionElement);
+                // Add the question as heading
+                var questionElement = $('<h3>' + question + '</h3>');
+                quizContainer.append(questionElement);
 
-            // Shuffle the options
-            options = shuffle(options);
+                // Shuffle the options
+                options = shuffle(options);
 
-            // Create radio buttons for the options
-            options.forEach(function(option, index) {
-                var optionElement = $('<div class="option"><input type="radio" name="option" value="' + option + '"><label>' + option + '</label></div>');
+                // Create radio buttons for the options
+                options.forEach(function(option, index) {
+                    var optionElement = $('<div class="option"><input type="radio" name="option" value="' + option + '"><label>' + option + '</label></div>');
 
-                quizContainer.append(optionElement);
-            });
+                    quizContainer.append(optionElement);
+                });
 
-            // Create the submit button
-            var submitButton = $('<button class="attend-quiz-button" onclick="submitAnswer(' + quizId + ')">Submit</button>');
-            quizContainer.append(submitButton);
+                // Create the submit button
+                var submitButton = $('<button class="attend-quiz-button" onclick="submitAnswer(' + quizId + ')">Submit</button>');
+                quizContainer.append(submitButton);
 
-            // Append the quiz container to the quizzes section
-            $('.quizzes-section').append(quizContainer);
-            $("#c2").hide();
-        },
+                // Append the quiz container to the quizzes section
+                $('.quizzes-section').append(quizContainer);
+                $("#c2").hide();
+            }
+
+            ,
         error: function(error) {
             console.error('Error retrieving quiz details');
         }
@@ -196,35 +237,43 @@ function submitAnswer(quizId) {
 
     // Make an AJAX request to submit the answer
     $.ajax({
+
         url: '/submitanswer/' + quizId,
         type: 'POST',
         data: {
             answer: selectedAnswer
-        },
+        }
+
+        ,
         success: function(response) {
-            console.log('Answer submitted successfully!');
-            console.log(response);
+                console.log('Answer submitted successfully!');
+                console.log(response);
 
-            // Reload the quiz section with updated content
-            $.ajax({
-                url: '/',
-                type: 'GET',
-                dataType: 'html',
-                success: function(response) {
-                    // Update the necessary sections of the page with the new content
-                    $('.quizzes-section').html($(response).find('.quizzes-section').html());
-                    // ...
-                    // Update other sections as needed
-                    // ...
+                // Reload the quiz section with updated content
+                $.ajax({
 
-                    // Hide the element with ID 'c2'
-                    $("#c2").show();
-                },
-                error: function(error) {
-                    console.error('Error updating the page:', error);
-                }
-            });
-        },
+                    url: '/',
+                    type: 'GET',
+                    dataType: 'html',
+                    success: function(response) {
+                            // Update the necessary sections of the page with the new content
+                            $('.quizzes-section').html($(response).find('.quizzes-section').html());
+                            // ...
+                            // Update other sections as needed
+                            // ...
+
+                            // Hide the element with ID 'c2'
+                            $("#c2").show();
+                        }
+
+                        ,
+                    error: function(error) {
+                        console.error('Error updating the page:', error);
+                    }
+                });
+            }
+
+            ,
         error: function(error) {
             console.error('Error submitting answer');
         }
@@ -236,19 +285,23 @@ function submitAnswer(quizId) {
 
 function fetchQuizzes() {
     $.ajax({
+
         url: '/quizzes/all',
         type: 'GET',
         dataType: 'json',
         success: function(response) {
-            console.log('Quiz data retrieved successfully!');
-            console.log(response);
-            updateQuizList(response); // Update the quiz list with the retrieved data
-        },
+                console.log('Quiz data retrieved successfully!');
+                console.log(response);
+                updateQuizList(response); // Update the quiz list with the retrieved data
+            }
+
+            ,
         error: function(error) {
             console.error('Error retrieving quiz data:', error);
         }
     });
 }
+
 setInterval(fetchQuizzes, 2000);
 
 function getResults(id) {
@@ -256,6 +309,7 @@ function getResults(id) {
     var table = $('.results-table');
 
     if (quizSection.is(':visible') && table.is(':visible')) {
+
         // Slide up the table with a fast animation
         table.slideUp('fast', function() {});
     } else {
@@ -264,53 +318,56 @@ function getResults(id) {
 
     function continueGetResults() {
         $.ajax({
+
             url: '/quizzes/result/' + id,
             type: 'GET',
             dataType: 'json',
             success: function(response) {
-                console.log('GET request successful!');
-                console.log(response);
+                    console.log('GET request successful!');
+                    console.log(response);
 
-                // Clear the window
-                quizSection.empty();
+                    // Clear the window
+                    quizSection.empty();
 
-                // Create the table
-                var newTable = $('<table>').addClass('results-table');
-                var thead = $('<thead>');
-                var tbody = $('<tbody>');
-                var trHead = $('<tr>');
-                var thName = $('<th>').text('Name');
-                var thResult = $('<th>').text('Result');
+                    // Create the table
+                    var newTable = $('<table>').addClass('results-table');
+                    var thead = $('<thead>');
+                    var tbody = $('<tbody>');
+                    var trHead = $('<tr>');
+                    var thName = $('<th>').text('Name');
+                    var thResult = $('<th>').text('Result');
 
-                trHead.append(thName, thResult);
-                thead.append(trHead);
-                newTable.append(thead);
+                    trHead.append(thName, thResult);
+                    thead.append(trHead);
+                    newTable.append(thead);
 
-                // Add rows to the table
-                $.each(response, function(index, result) {
-                    var tr = $('<tr>');
-                    var tdName = $('<td>').text(result[0]);
-                    var tdResult = $('<td>').text(result[1]);
+                    // Add rows to the table
+                    $.each(response, function(index, result) {
+                        var tr = $('<tr>');
+                        var tdName = $('<td>').text(result[0]);
+                        var tdResult = $('<td>').text(result[1]);
 
-                    if (result[1] === 'Wrong Answer') {
-                        tdResult.css('color', 'red');
-                    } else if (result[1] === 'Correct Answer') {
-                        tdResult.css('color', 'green');
-                    }
+                        if (result[1] === 'Wrong Answer') {
+                            tdResult.css('color', 'red');
+                        } else if (result[1] === 'Correct Answer') {
+                            tdResult.css('color', 'green');
+                        }
 
-                    tr.append(tdName, tdResult);
-                    tbody.append(tr);
-                });
+                        tr.append(tdName, tdResult);
+                        tbody.append(tr);
+                    });
 
 
-                newTable.append(tbody);
+                    newTable.append(tbody);
 
-                // Append the table to the .quiz section
-                quizSection.empty().append(newTable);
+                    // Append the table to the .quiz section
+                    quizSection.empty().append(newTable);
 
-                // Show the .quiz section
-                quizSection.slideDown('slow');
-            },
+                    // Show the .quiz section
+                    quizSection.slideDown('slow');
+                }
+
+                ,
             error: function(error) {
                 console.error('Error in GET request');
                 console.error(error);
@@ -318,4 +375,33 @@ function getResults(id) {
         });
     }
 
+}
+
+function getAnswer(id) {
+    $.ajax({
+
+        url: '/reveal/' + id,
+        type: 'GET',
+        success: function(response) {
+                console.log('GET request successful!');
+                console.log(response);
+
+                var sectionText = $('.quizzes-section').text();
+                var searchText = "answer";
+
+                if (sectionText.includes(searchText)) {
+                    $("#answerId").text("hidden");
+                    $("#answerId").hide();
+                } else {
+                    var answerText = 'The correct answer is: ' + response;
+                    $('.quizzes-section').append($('<p>').text(answerText).attr('id', "answerId"));
+                }
+            }
+
+            ,
+        error: function(error) {
+            console.error('Error in GET request');
+            console.error(error);
+        }
+    });
 }
